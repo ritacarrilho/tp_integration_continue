@@ -133,22 +133,29 @@ jobs:
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
 
     - name: Notify Developer
-      uses: actions/github-script@v4
+      uses: actions/github-script@v7
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
-          const commitSha = context.sha;
-          const { data: commitData } = await github.rest.repos.getCommit({
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            ref: commitSha
-          });
-          const author = commitData.commit.author.name;
-          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
-          await github.rest.repos.createCommitComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: commitSha,
-            body: comment
-          });
+            body: '👋 Thanks for reporting!'
+          })
+
+
+# const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
+# const commitSha = context.sha;
+# const { data: commitData } = await github.rest.repos.getCommit({
+#   owner: context.repo.owner,
+#   repo: context.repo.repo,
+#   ref: commitSha
+# });
+# const author = commitData.commit.author.name;
+# const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
+# await github.rest.repos.createCommitComment({
+#   owner: context.repo.owner,
+#   repo: context.repo.repo,
+#   commit_sha: commitSha,
+#   body: comment
+# });
