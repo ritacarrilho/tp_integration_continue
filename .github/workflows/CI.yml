@@ -23,17 +23,20 @@ jobs:
 
     - name: Lint code
       run: |
-        # Lint Python code
-        pylint app/*.py
-        # Lint Dockerfile
+        pylint app/*.py > pylint-report.txt
         docker run --rm hadolint/hadolint < Dockerfile
-        # Lint dependencies
         pip check
+
+    - name: Upload pylint report
+      uses: actions/upload-artifact@v2
+      with:
+        name: pylint-report
+        path: pylint-report.txt
         
   unit-tests:
     name: Unit Tests with Coverage
     runs-on: ubuntu-latest
-    container: python:3.9
+    needs: lint
     
     services:
       tasks-db:
@@ -62,64 +65,41 @@ jobs:
 
     - name: Run unit tests with coverage
       env:
-        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{secrets.CONTAINER_NAME}}/${{ secrets.POSTGRES_DB }}
+        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@tasks-db/${{ secrets.POSTGRES_DB }}
       run: |
-        pytest tests --cov=app
+        pytest tests --cov=app --cov-report=xml
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage.xml
 
   sonarqube:
-    name: SonarQube Analysis
     runs-on: ubuntu-latest
-    needs: [lint, unit-tests]
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Download coverage report
-      uses: actions/download-artifact@v2
-      with:
-        name: coverage-report
-        path: coverage-reports
-
-    - name: Download pylint report
-      uses: actions/download-artifact@v2
-      with:
-        name: pylint-report
-        path: .
-
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'adopt'
-
-    - name: Install SonarScanner
-      run: |
-        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-        unzip sonar-scanner-cli-4.6.2.2472-linux.zip
-        mv sonar-scanner-4.6.2.2472-linux sonar-scanner
-        echo "export PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
-
+    # Triggering SonarQube analysis as results of it are required by Quality Gate check.
     - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        sonar-scanner \
-          -Dsonar.projectKey=TP_integ_continue \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
-          -Dsonar.python.coverage.reportPaths=coverage-reports/coverage.xml \
-          -Dsonar.python.pylint.reportPaths=pylint-report.txt
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
+    # Check the Quality Gate status.
     - name: SonarQube Quality Gate check
       id: sonarqube-quality-gate-check
       uses: sonarsource/sonarqube-quality-gate-action@master
+      # Force to fail step after specific time.
       timeout-minutes: 5
       env:
        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
+    # Optionally you can use the output from the Quality Gate in another step.
+    # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
     - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
