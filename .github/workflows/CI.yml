@@ -135,13 +135,23 @@ jobs:
     - name: Notify Developer
       uses: actions/github-script@v7
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '👋 Thanks for reporting!'
-          })
+          const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
+          const commitSha = github.context.sha;
+          const { data: commitData } = await github.rest.repos.getCommit({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            ref: commitSha
+          });
+          const author = commitData.commit.author.name;
+          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
+          await github.rest.repos.createCommitComment({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            commit_sha: commitSha,
+            body: comment
+          });
 
 
 # const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
