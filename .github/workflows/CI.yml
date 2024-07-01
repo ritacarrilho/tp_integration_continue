@@ -112,10 +112,12 @@ jobs:
       uses: SonarSource/sonarcloud-github-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: https://sonarcloud.io
       with:
         args: |
-          -Dsonar.projectKey=ritacarrilho_tp_integration_continue
-          -Dsonar.sources=app
+          -Dsonar.projectKey=YOUR_PROJECT_KEY
+          -Dsonar.organization=YOUR_ORGANIZATION_KEY
+          -Dsonar.sources=.
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.python.coverage.reportPaths=coverage.xml
@@ -131,17 +133,16 @@ jobs:
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
 
-    - name: Post comment on push
-      if: github.event_name == 'pull_request'
+    - name: Post comment on commit
       uses: actions/github-script@v4
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
           const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.`;
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          github.rest.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
+            commit_sha: commitSha,
             body: comment
           });
