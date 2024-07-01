@@ -112,12 +112,10 @@ jobs:
       uses: SonarSource/sonarcloud-github-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: https://sonarcloud.io
       with:
         args: |
-          -Dsonar.projectKey=YOUR_PROJECT_KEY
-          -Dsonar.organization=YOUR_ORGANIZATION_KEY
-          -Dsonar.sources=.
+          -Dsonar.projectKey=ritacarrilho_tp_integration_continue
+          -Dsonar.sources=app
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.python.coverage.reportPaths=coverage.xml
@@ -139,7 +137,14 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
-          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.`;
+          const commitSha = process.env.GITHUB_SHA;
+          const { data: commitData } = await github.rest.repos.getCommit({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: commitSha
+          });
+          const author = commitData.commit.author.name;
+          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
           github.rest.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
