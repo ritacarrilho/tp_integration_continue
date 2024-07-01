@@ -115,7 +115,7 @@ jobs:
       with:
         args: |
           -Dsonar.projectKey=TP_integ_continue
-          -Dsonar.sources=.
+          -Dsonar.sources=app
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.python.coverage.reportPaths=coverage.xml
           -Dsonar.python.pylint.reportPaths=pylint-report.txt
