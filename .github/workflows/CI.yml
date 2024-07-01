@@ -131,17 +131,23 @@ jobs:
 
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
- 
-    - name: Notify Developer
-      uses: actions/github-script@v7
+
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+    - run: npm install fs
+    - uses: actions/github-script@v3
       with:
-        script: |
-          github.rest.repos.createCommitComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: context.sha,
-            body: `The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}.`
-          })
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const fs = require('fs')
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "the message"
+            })
+
 
   # const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
   # const commitSha = context.sha;
