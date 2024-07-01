@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  tasks-db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpassword
+      POSTGRES_DB: taskdb
+    ports:
+      - "3250:5433"
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - tasks-network
+
+  tasks-app:
+    container_name: tp_integration_continue
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - tasks-db
+    environment:
+      - DATABASE_URL=postgresql://taskuser:taskpassword@tasks-db/taskdb
+    networks:
+      - tasks-network
+
+  tasks-test:
+    build: .
+    depends_on:
+      - tasks-db
+    environment:
+      - DATABASE_URL=postgresql://taskuser:taskpassword@tasks-db/taskdb
+    command: ["pytest", "--cov=app"]
+    networks:
+      - tasks-network
+
+volumes:
+  data:
+
+networks:
+  tasks-network:

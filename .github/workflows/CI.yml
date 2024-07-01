@@ -1,0 +1,98 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint code
+      run: |
+        # Lint Python code
+        pylint app/*.py
+        # Lint Dockerfile
+        docker run --rm hadolint/hadolint < Dockerfile
+        # Lint dependencies
+        pip check
+        
+  unit-tests:
+    name: Unit Tests with Coverage
+    runs-on: ubuntu-latest
+    container: python:3.9
+    
+    services:
+      tasks-db:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run unit tests with coverage
+      env:
+        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{secrets.CONTAINER_NAME}}/${{ secrets.POSTGRES_DB }}
+      run: |
+        pytest tests --cov=app
+
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    # Triggering SonarQube analysis as results of it are required by Quality Gate check.
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: sqp_b9491dc104276afd058864164db798b268e1e69d
+        SONAR_HOST_URL: https://31f7-81-64-135-19.ngrok-free.app
+
+    # Check the Quality Gate status.
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      # Force to fail step after specific time.
+      timeout-minutes: 5
+      env:
+       SONAR_TOKEN: sqp_b9491dc104276afd058864164db798b268e1e69d
+       SONAR_HOST_URL: https://31f7-81-64-135-19.ngrok-free.app #OPTIONAL
+
+    # Optionally you can use the output from the Quality Gate in another step.
+    # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
+    - name: "Example show SonarQube Quality Gate Status value"
+      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+
+# curl -X POST -u sqp_b9491dc104276afd058864164db798b268e1e69d:https://31f7-81-64-135-19.ngrok-free.app/api/qualitygates/project_status?projectKey=TP_integ_continue" | grep '"status":"OK"'
