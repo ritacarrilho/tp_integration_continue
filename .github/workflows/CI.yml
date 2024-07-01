@@ -1,7 +1,12 @@
 name: CI Pipeline
 
 on: [push, pull_request]
-
+# on:
+#   # Trigger the workflow on push or pull request
+#   pull_request:
+#     branches:
+#       - master
+#       - develop
 jobs:
   lint:
     name: Lint
@@ -133,19 +138,18 @@ jobs:
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
 
   comment:
+    name: Notify developer
     runs-on: ubuntu-latest
+    needs: [lint, unit-tests, sonarqube]
     steps:
-    - run: npm install fs
-    - uses: actions/github-script@v3
-      with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/github-script@v6
+        with:
           script: |
-            const fs = require('fs')
-            github.issues.createComment({
+            github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: "the message"
+              body: '👋 Thanks for reporting!'
             })
 
 
