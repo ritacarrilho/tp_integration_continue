@@ -23,20 +23,17 @@ jobs:
 
     - name: Lint code
       run: |
-        pylint app/*.py > pylint-report.txt
+        # Lint Python code
+        pylint app/*.py
+        # Lint Dockerfile
         docker run --rm hadolint/hadolint < Dockerfile
+        # Lint dependencies
         pip check
-
-    - name: Upload pylint report
-      uses: actions/upload-artifact@v2
-      with:
-        name: pylint-report
-        path: pylint-report.txt
         
   unit-tests:
     name: Unit Tests with Coverage
     runs-on: ubuntu-latest
-    needs: lint
+    container: python:3.9
     
     services:
       tasks-db:
@@ -65,15 +62,9 @@ jobs:
 
     - name: Run unit tests with coverage
       env:
-        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@tasks-db/${{ secrets.POSTGRES_DB }}
+        DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{secrets.CONTAINER_NAME}}/${{ secrets.POSTGRES_DB }}
       run: |
-        pytest tests --cov=app --cov-report=xml
-
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-report
-        path: coverage.xml
+        pytest tests --cov=app
 
   sonarqube:
     runs-on: ubuntu-latest
