@@ -131,20 +131,17 @@ jobs:
 
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-
+ 
     - name: Notify Developer
       uses: actions/github-script@v7
       with:
         script: |
-          const commitSha = context.sha;
-          await github.rest.repos.createCommitComment({
+          github.rest.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            commit_sha: commitSha,
-            body: "Hello! This is a test comment to verify GitHub Actions notification!"
-          });
-
-
+            commit_sha: context.sha,
+            body: `The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}.`
+          })
 
   # const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
   # const commitSha = context.sha;
