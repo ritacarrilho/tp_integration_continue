@@ -138,15 +138,14 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
-          const commitSha = github.context.sha;
-          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\nPlease check the analysis results.`;
+          const commitSha = context.sha;
+          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\nPlease check the analysis results [here](https://sonarcloud.io/dashboard?id=ritacarrilho_tp_integration_continue&branch=${{ github.ref }})`;
           await github.rest.repos.createCommitComment({
-            owner: github.context.repo.owner,
-            repo: github.context.repo.repo,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
             commit_sha: commitSha,
             body: comment
           });
-
 
 # const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
 # const commitSha = context.sha;
