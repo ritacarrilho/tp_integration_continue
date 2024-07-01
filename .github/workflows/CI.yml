@@ -130,7 +130,7 @@ jobs:
 
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-
+    
     - name: Post comment on commit
       uses: actions/github-script@v4
       with:
@@ -138,14 +138,14 @@ jobs:
         script: |
           const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
           const commitSha = process.env.GITHUB_SHA;
-          const { data: commitData } = await github.rest.repos.getCommit({
+          const { data: commitData } = await octokit.repos.getCommit({
             owner: context.repo.owner,
             repo: context.repo.repo,
             ref: commitSha
           });
           const author = commitData.commit.author.name;
           const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
-          github.rest.repos.createCommitComment({
+          await octokit.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             commit_sha: commitSha,
