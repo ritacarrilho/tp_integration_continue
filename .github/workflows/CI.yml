@@ -39,6 +39,7 @@ jobs:
   unit-tests:
     name: Unit Tests with Coverage
     runs-on: ubuntu-latest
+    container: python:3.9
     needs: lint
     
     services:
