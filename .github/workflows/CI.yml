@@ -130,3 +130,18 @@ jobs:
 
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+
+    - name: Post comment on push
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
+          const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.`;
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
