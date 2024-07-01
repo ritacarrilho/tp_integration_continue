@@ -67,29 +67,58 @@ jobs:
         pytest tests --cov=app
 
   sonarqube:
+    name: SonarQube Analysis
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    # Triggering SonarQube analysis as results of it are required by Quality Gate check.
+    - name: Download coverage report
+      uses: actions/download-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage-reports
+
+    - name: Download pylint report
+      uses: actions/download-artifact@v2
+      with:
+        name: pylint-report
+        path: .
+
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'adopt'
+
+    - name: Install SonarScanner
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
+        unzip sonar-scanner-cli-4.6.2.2472-linux.zip
+        mv sonar-scanner-4.6.2.2472-linux sonar-scanner
+        echo "export PATH=$PATH:$PWD/sonar-scanner/bin" >> $GITHUB_ENV
+
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=TP_integ_continue \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.python.coverage.reportPaths=coverage-reports/coverage.xml \
+          -Dsonar.python.pylint.reportPaths=pylint-report.txt
 
-    # Check the Quality Gate status.
     - name: SonarQube Quality Gate check
       id: sonarqube-quality-gate-check
       uses: sonarsource/sonarqube-quality-gate-action@master
-      # Force to fail step after specific time.
       timeout-minutes: 5
       env:
        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-    # Optionally you can use the output from the Quality Gate in another step.
-    # The possible outputs of the `quality-gate-status` variable are `PASSED`, `WARN` or `FAILED`.
     - name: "Example show SonarQube Quality Gate Status value"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-# curl -X POST -u sqp_b9491dc104276afd058864164db798b268e1e69d:https://31f7-81-64-135-19.ngrok-free.app/api/qualitygates/project_status?projectKey=TP_integ_continue" | grep '"status":"OK"'
