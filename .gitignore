@@ -1,6 +1,6 @@
 .DS_Store
 **/.DS_Store
 **/venv
-**/.coverage
+# **/.coverage
 **/.pytest_cache
 /app/__pycache__
