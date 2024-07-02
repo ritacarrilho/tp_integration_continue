@@ -164,7 +164,7 @@ jobs:
                 "subject": "SonarQube Quality Gate Status"
               }],
               "from": {
-                "email": "r.carrilholameira@ecoles-epsi.net
+                "email": "r.carrilholameira@ecoles-epsi.net"
               },
               "content": [{
                 "type": "text/plain",
