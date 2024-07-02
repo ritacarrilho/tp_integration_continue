@@ -236,6 +236,8 @@ jobs:
           
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: release  # Assurez-vous de checkout la branche release
         
       - name: Update version in files
         if: success()
