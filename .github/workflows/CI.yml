@@ -195,3 +195,29 @@ jobs:
         run: |
           git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
           git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+      
+      - name: Check test result
+        if: success()  # Si les tests ont réussi
+        run: echo "Test validé"
+
+      - name: Checkout release branch with token
+        if: success()  # Si les tests ont réussi
+        uses: actions/checkout@v1
+        with:
+          ref: release
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Merge main into release
+        if: success()  # Si les tests ont réussi
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+            echo "Forcing main into release"
+            git fetch origin main
+            git checkout -B release origin/main
+            git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/ritacarrilho/tp_integration_continue.git release
+            echo "Force push de la branche main vers release validé"
+
+      - name: Check test failure
+        if: failure()  # Si une étape précédente a échoué
+        run: echo "Tests échoués !"
