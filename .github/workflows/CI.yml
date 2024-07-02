@@ -257,7 +257,7 @@ jobs:
     - name: Update version in files on release and create tag
       if: success()
       run: |
-        VERSION=$(date +"%Y/%m/%d")
+        VERSION=$(date +"%Y.%m.%d")
         echo "Updating version to $VERSION"
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
         git tag -a v1-$VERSION -m "Version $VERSION"
