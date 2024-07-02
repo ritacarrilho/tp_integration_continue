@@ -102,7 +102,7 @@ jobs:
       uses: SonarSource/sonarcloud-github-action@master
       with:
         args: >
-          -Dsonar.projectKey=${{ secrets.SONAR_KEY }}
+          -Dsonar.projectKey=ritacarrilho_tp_integration_continue
           -Dsonar.organization=tp-integration-continue
           -Dsonar.sources=app
           -Dsonar.tests=tests
