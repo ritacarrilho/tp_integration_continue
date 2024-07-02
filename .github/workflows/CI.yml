@@ -1,6 +1,9 @@
 name: CI Pipeline
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: 
+      - main # Déclenché à chaque nouveau commit sur le main
 
 jobs:
   lint:
