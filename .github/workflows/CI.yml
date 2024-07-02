@@ -136,23 +136,3 @@ jobs:
 
     - name: "Show SonarQube Quality Gate Status"
       run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
-
-  comment:
-    name: Notify developer
-    runs-on: ubuntu-latest
-    needs: [lint, unit-tests, sonarqube]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # - name: Notify developer
-      #   uses: actions/github-script@v6
-      #   with:
-      #     github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      #     script: |
-      #       github.rest.repos.createCommitComment({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         commit_sha: context.sha,
-      #         body: '👋 The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}.'
-      #       })
