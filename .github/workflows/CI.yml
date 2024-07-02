@@ -148,6 +148,9 @@ jobs:
       - name: Check the found email and username
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
+      - name: Check status output
+        run: echo "{{ $QUALITY_GATE_STATUS }}"
+
       - name: Send Notification
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID }}
