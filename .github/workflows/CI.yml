@@ -103,6 +103,10 @@ jobs:
     # - name: Run tox
     #   run: tox -e py
 
+    - name: Adjust coverage paths
+      run: |
+        sed -i 's|/__w/tp_integration_continue/tp_integration_continue/app|app|g' coverage.xml
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
       env: 
@@ -113,7 +117,7 @@ jobs:
           -Dsonar.organization=tp-integration-continue
           -Dsonar.sources=app
           -Dsonar.tests=tests
-          -Dsonar.python.coverage.reportPaths=./coverage.xml
+          -Dsonar.python.coverage.reportPaths=coverage.xml
 
   # sonarqube:
   #   name: SonarQube Analysis
