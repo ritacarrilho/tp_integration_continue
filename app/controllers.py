@@ -87,12 +87,3 @@ def update_task(db: Session, task_id: int, updated_task: schemas.TaskCreate):
         db.commit()
         db.refresh(db_task)
     return db_task
-
-def test_func():
-    """
-    Fonction de test.
-
-    Returns:
-        Task: Une string bidon.
-    """
-    return "Toto"
