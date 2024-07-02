@@ -100,8 +100,6 @@ jobs:
 
     - name: Print coverage report
       run: cat coverage.xml
-    # - name: Run tox
-    #   run: tox -e py
 
     - name: Adjust coverage paths
       run: |
@@ -126,6 +124,11 @@ jobs:
       timeout-minutes: 5
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      continue-on-error: true
+
+    - name: Set Quality Gate Status Output
+      id: set-quality-gate-status
+      run: echo "QUALITY_GATE_STATUS=${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" >> $GITHUB_ENV
 
   notify:
     runs-on: ubuntu-latest
@@ -150,7 +153,7 @@ jobs:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID }}
           EMAIL: ${{ steps.get-email.outputs.email }}
           USERNAME: ${{ github.triggering_actor }}
-          QUALITY_GATE_STATUS: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
+          QUALITY_GATE_STATUS: ${{ env.QUALITY_GATE_STATUS }}
           REPO_NAME: ${{ github.repository }}
           COMMIT_SHA: ${{ github.sha }}
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
@@ -174,20 +177,3 @@ jobs:
                 "value": "Hello '"$USERNAME"',\n\nThe Quality Gate status for your recent push is '"$QUALITY_GATE_STATUS"'.\n\nRepository: '"$REPO_NAME"'\nCommit SHA: '"$COMMIT_SHA"'\nCommit Message: '"$COMMIT_MESSAGE"'\n\nBest regards,\nYour CI Pipeline"
               }]
             }'
-
-          
-      # - name: Send Notification
-      #   uses: licenseware/send-email-notification@v1
-      #   with:
-      #     api-key: ${{ secrets.SENDGRID_API_KEY }}
-      #     subject: Test Subject
-      #     from-email: r.carrilholameira@ecoles-epsi.net
-      #     to-email: ${{ steps.get-email.outputs.email }}
-      #     markdown-body: |
-      #       # My Markdown Title
-
-      #       This is a description
-
-      #       ## Another header
-
-      #       Another description
