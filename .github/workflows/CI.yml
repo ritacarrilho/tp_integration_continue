@@ -255,3 +255,9 @@ jobs:
           git add package.json
           git commit -m "Update version to $VERSION"
           git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
+  
+      - name: Create Git tag
+        if: success()
+        run: |
+          git tag -a v${VERSION} -m "Version ${VERSION}"
+          git push origin v${VERSION}
