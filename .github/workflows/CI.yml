@@ -136,13 +136,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: get developer email
+      - name: Get developer info
         id: get-email
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ github.triggering_actor }}
           
-      - name: Print the found email and username
+      - name: Check the found email and username
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
       - name: Send Notification
@@ -151,24 +151,27 @@ jobs:
           EMAIL: ${{ steps.get-email.outputs.email }}
           USERNAME: ${{ github.triggering_actor }}
           QUALITY_GATE_STATUS: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
+          REPO_NAME: ${{ github.repository }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           curl --request POST \
             --url https://api.sendgrid.com/v3/mail/send \
-            --header "Authorization: Bearer ${{ secrets.SENDGRID }}" \
+            --header "Authorization: Bearer $SENDGRID_API_KEY" \
             --header "Content-Type: application/json" \
             --data '{
               "personalizations": [{
                 "to": [{
                   "email": "'"${EMAIL}"'"
                 }],
-                "subject": "SonarQube Quality Gate Status"
+                "subject": "SonarQube Quality Gate Status for ${REPO_NAME}"
               }],
               "from": {
                 "email": "r.carrilholameira@ecoles-epsi.net"
               },
               "content": [{
                 "type": "text/plain",
-                "value": "Hello '"${USERNAME}"', the Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}."
+                "value": "Hello ${USERNAME},\n\nThe Quality Gate status for your recent push is ${QUALITY_GATE_STATUS}.\n\nRepository: ${REPO_NAME}\nCommit SHA: ${COMMIT_SHA}\nCommit Message: ${COMMIT_MESSAGE}\n\nBest regards,\nYour CI Pipeline"
               }]
             }'
 
