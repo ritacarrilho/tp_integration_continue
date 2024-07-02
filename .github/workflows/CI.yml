@@ -127,7 +127,10 @@ jobs:
       continue-on-error: true
 
     - name: Set Quality Gate Status Output
+
       id: set-quality-gate-status
+      env:
+        SONAR_STATUS: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
       run: echo "QUALITY_GATE_STATUS=${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}" >> $GITHUB_ENV
 
   notify:
@@ -149,7 +152,7 @@ jobs:
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
       - name: Check status output
-        run: echo "{{ $QUALITY_GATE_STATUS }}"
+        run: echo "{{ $SONAR_STATUS }}, {{ env.SONAR_STATUS }} "
 
       - name: Send Notification
         env:
