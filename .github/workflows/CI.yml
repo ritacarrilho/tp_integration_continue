@@ -186,3 +186,12 @@ jobs:
                 "value": "Hello '"$USERNAME"',\n\nThe Quality Gate status for your recent push is '"$QUALITY_GATE_STATUS"'.\n\nRepository: '"$REPO_NAME"'\nCommit SHA: '"$COMMIT_SHA"'\nCommit Message: '"$COMMIT_MESSAGE"'\n\nBest regards,\nYour CI Pipeline"
               }]
             }'
+  Merge_test_success:
+    name: Merge test success
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Initialize Git User
+        run: |
+          git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+          git config --global user.name "${{ secrets.GIT_USER_NAME }}"
