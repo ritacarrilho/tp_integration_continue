@@ -147,7 +147,7 @@ jobs:
 
       - name: Send Notification
         env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID }}
           EMAIL: ${{ steps.get-email.outputs.email }}
           USERNAME: ${{ github.triggering_actor }}
           QUALITY_GATE_STATUS: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
