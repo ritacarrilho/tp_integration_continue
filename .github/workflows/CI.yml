@@ -104,7 +104,7 @@ jobs:
         python-version: 3.9
 
     - name: Install tox and any other packages
-      run: pip install tox
+      run: pip install -r requirements.txt
 
     - name: Run tox
       run: tox -e py
