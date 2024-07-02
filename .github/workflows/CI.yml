@@ -222,3 +222,10 @@ jobs:
       - name: Check test failure
         if: failure()  # Si une étape précédente a échoué
         run: echo "Tests échoués !"
+
+      - name: Update version in files
+        if: success()  # Si les tests ont réussi
+        run: |
+          VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          echo "Updating version to $VERSION"
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
