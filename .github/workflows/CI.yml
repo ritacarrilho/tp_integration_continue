@@ -131,6 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Send notification
     needs: [sonarqube]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -141,16 +142,34 @@ jobs:
         with:
           github-username: ${{ github.triggering_actor }}
           
-      # Use the output from the `get-email` step
       - name: Print the found email and username
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
-      - name: Install mutt
-        run: sudo apt-get update && sudo apt-get install -y mutt
-
       - name: Send Notification
         env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           EMAIL: ${{ steps.get-email.outputs.email }}
           USERNAME: ${{ github.triggering_actor }}
+          QUALITY_GATE_STATUS: ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}
         run: |
-          echo "Hello $USERNAME, the Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}." | mutt -s "SonarQube Quality Gate Status" -- $EMAIL
+          curl --request POST \
+            --url https://api.sendgrid.com/v3/mail/send \
+            --header "Authorization: Bearer $SENDGRID_API_KEY" \
+            --header "Content-Type: application/json" \
+            --data '{
+              "personalizations": [{
+                "to": [{
+                  "email": "'"${EMAIL}"'"
+                }],
+                "subject": "SonarQube Quality Gate Status"
+              }],
+              "from": {
+                "email": "rita.carrilho.lameira@lidem.education"
+              },
+              "content": [{
+                "type": "text/plain",
+                "value": "Hello '"${USERNAME}"', the Quality Gate status for your recent push is '"${QUALITY_GATE_STATUS}"'."
+              }]
+            }'
+
+          
