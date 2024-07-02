@@ -127,30 +127,30 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-notify:
-  runs-on: ubuntu-latest
-  name: Send notification
-  needs: [sonarqube]
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+  notify:
+    runs-on: ubuntu-latest
+    name: Send notification
+    needs: [sonarqube]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: get developer email
-      id: get-email
-      uses: evvanErb/get-github-email-by-username-action@v1.25
-      with:
-        github-username: ${{ github.triggering_actor }}
-        
-    # Use the output from the `get-email` step
-    - name: Print the found email and username
-      run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
+      - name: get developer email
+        id: get-email
+        uses: evvanErb/get-github-email-by-username-action@v1.25
+        with:
+          github-username: ${{ github.triggering_actor }}
+          
+      # Use the output from the `get-email` step
+      - name: Print the found email and username
+        run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
-    - name: Install mutt
-      run: sudo apt-get update && sudo apt-get install -y mutt
+      - name: Install mutt
+        run: sudo apt-get update && sudo apt-get install -y mutt
 
-    - name: Send Notification
-      env:
-        EMAIL: ${{ steps.get-email.outputs.email }}
-        USERNAME: ${{ github.triggering_actor }}
-      run: |
-        echo "Hello $USERNAME, the Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}." | mutt -s "SonarQube Quality Gate Status" -- $EMAIL
+      - name: Send Notification
+        env:
+          EMAIL: ${{ steps.get-email.outputs.email }}
+          USERNAME: ${{ github.triggering_actor }}
+        run: |
+          echo "Hello $USERNAME, the Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}." | mutt -s "SonarQube Quality Gate Status" -- $EMAIL
