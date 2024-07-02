@@ -118,47 +118,14 @@ jobs:
           -Dsonar.sources=app
           -Dsonar.tests=tests
           -Dsonar.python.coverage.reportPaths=coverage.xml
+          -Dsonar.scm.provider=git
 
-  # sonarqube:
-  #   name: SonarQube Analysis
-  #   runs-on: ubuntu-latest
-  #   needs: [lint, unit-tests]
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
+      timeout-minutes: 5
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  #   steps:
-  #   - name: Checkout code
-  #     uses: actions/checkout@v3
-
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.9'
-
-  #   - name: Download coverage report
-  #     uses: actions/download-artifact@v2
-  #     with:
-  #       name: coverage-report
-  #       path: ./
-
-  #   - name: SonarQube Scan
-  #     uses: SonarSource/sonarcloud-github-action@master
-  #     with:
-  #       args: >
-  #         -Dsonar.projectKey=ritacarrilho_tp_integration_continue
-  #         -Dsonar.organization=tp-integration-continue
-  #         -Dsonar.sources=app
-  #         -Dsonar.tests=tests
-  #         -Dsonar.python.coverage.reportPaths=coverage.xml
-            # -Dsonar.scm.provider=git
-  #     env:
-  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #       SONAR_HOST_URL: https://sonarcloud.io
-
-  #   - name: SonarQube Quality Gate check
-  #     id: sonarqube-quality-gate-check
-  #     uses: sonarsource/sonarqube-quality-gate-action@master
-  #     timeout-minutes: 5
-  #     env:
-  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  #   - name: "Show SonarQube Quality Gate Status"
-  #     run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
+    - name: "Show SonarQube Quality Gate Status"
+      run: echo "The Quality Gate status is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}"
