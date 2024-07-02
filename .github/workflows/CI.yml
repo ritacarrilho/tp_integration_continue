@@ -145,29 +145,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Notify developer
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          script: |
-            github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: '👋 The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}.'
-            })
-  # const status = '${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}';
-  # const commitSha = context.sha;
-  # const { data: commitData } = await github.rest.repos.getCommit({
-  #   owner: context.repo.owner,
-  #   repo: context.repo.repo,
-  #   ref: commitSha
-  # });
-  # const author = commitData.commit.author.name;
-  # const comment = `### SonarQube Quality Gate Status\nThe Quality Gate status is **${status}**.\n\n@${author}, please check the analysis results.`;
-  # await github.rest.repos.createCommitComment({
-  #   owner: context.repo.owner,
-  #   repo: context.repo.repo,
-  #   commit_sha: commitSha,
-  #   body: comment
-  # });
+      # - name: Notify developer
+      #   uses: actions/github-script@v6
+      #   with:
+      #     github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      #     script: |
+      #       github.rest.repos.createCommitComment({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         commit_sha: context.sha,
+      #         body: '👋 The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}.'
+      #       })
