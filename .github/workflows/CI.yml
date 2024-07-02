@@ -274,4 +274,4 @@ jobs:
       if: success()
       run: |
         git tag -a v${VERSION} -m "Version ${VERSION}"
-        git push origin v${VERSION}
+        git push --force origin v${VERSION}
