@@ -130,9 +130,9 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     name: A job to get a users email
+    needs: [sonarqube]
     steps:
-      - name: get email
-        id: test
+      - name: get developer email
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ github.triggering_actor }}
@@ -141,8 +141,8 @@ jobs:
       - name: Print the found email
         run: echo "The email is ${{ steps.test.outputs.email }}"
 
-    # - name: Send Notification
-    #   env:
-    #     EMAIL: ${{ env.AUTHOR_EMAIL }}
-    #   run: |
-    #     echo "The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}." | mail -s "SonarQube Quality Gate Status" $EMAIL
+      - name: Send Notification
+        env:
+          EMAIL: ${{ env.AUTHOR_EMAIL }}
+        run: |
+          echo "The Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}." | mail -s "SonarQube Quality Gate Status" $EMAIL
