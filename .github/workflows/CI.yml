@@ -215,7 +215,7 @@ jobs:
             echo "Forcing main into release"
             git fetch origin main
             git checkout -B release origin/main
-            git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/ritacarrilho/tp_integration_continue.git release
+            git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
             echo "Force push de la branche main vers release validé"
 
       - name: Check test failure
