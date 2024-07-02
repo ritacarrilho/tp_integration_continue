@@ -164,7 +164,7 @@ jobs:
                 "subject": "SonarQube Quality Gate Status"
               }],
               "from": {
-                "email": "rita.carrilho.lameira@lidem.education"
+                "email": "r.carrilholameira@ecoles-epsi.net
               },
               "content": [{
                 "type": "text/plain",
