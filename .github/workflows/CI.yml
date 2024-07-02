@@ -168,8 +168,23 @@ jobs:
               },
               "content": [{
                 "type": "text/plain",
-                "value": "Hello '"${USERNAME}"', the Quality Gate status for your recent push is '"${QUALITY_GATE_STATUS}"'."
+                "value": "Hello '"${USERNAME}"', the Quality Gate status for your recent push is ${{ steps.sonarqube-quality-gate-check.outputs.quality-gate-status }}."
               }]
             }'
 
           
+      # - name: Send Notification
+      #   uses: licenseware/send-email-notification@v1
+      #   with:
+      #     api-key: ${{ secrets.SENDGRID_API_KEY }}
+      #     subject: Test Subject
+      #     from-email: r.carrilholameira@ecoles-epsi.net
+      #     to-email: ${{ steps.get-email.outputs.email }}
+      #     markdown-body: |
+      #       # My Markdown Title
+
+      #       This is a description
+
+      #       ## Another header
+
+      #       Another description
