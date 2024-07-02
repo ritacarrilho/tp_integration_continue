@@ -98,6 +98,17 @@ jobs:
         name: coverage-report
         path: ./
 
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install tox and any other packages
+      run: pip install tox
+
+    - name: Run tox
+      run: tox -e py
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
       env: 
@@ -132,6 +143,7 @@ jobs:
   #         -Dsonar.sources=app
   #         -Dsonar.tests=tests
   #         -Dsonar.python.coverage.reportPaths=coverage.xml
+            # -Dsonar.scm.provider=git
   #     env:
   #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       SONAR_HOST_URL: https://sonarcloud.io
