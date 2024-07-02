@@ -273,5 +273,5 @@ jobs:
     - name: Create Git tag
       if: success()
       run: |
-        git tag -a v1-${VERSION} -m "Version ${VERSION}"
-        git push --force origin v1-${VERSION}
+        git tag -a v1${VERSION} -m "Version ${VERSION}"
+        git push --force origin v1${VERSION}
