@@ -81,7 +81,6 @@ jobs:
   sonarqube:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
-    container: python:3.9
     needs: [lint, unit-tests]
 
     steps:
@@ -111,7 +110,7 @@ jobs:
       with:
         args: >
           -Dsonar.projectKey=${{ secrets.SONAR_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORG }}
+          -Dsonar.organization=tp-integration-continue
           -Dsonar.sources=app
           -Dsonar.tests=tests
           -Dsonar.python.coverage.reportPaths=./coverage.xml
