@@ -254,12 +254,14 @@ jobs:
         ref: release
         token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       
-    - name: Update version in files on release
+    - name: Update version in files on release and create tag
       if: success()
       run: |
-        VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+        VERSION=$(date +"%Y.%m.%d")
         echo "Updating version to $VERSION"
         sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+        git tag -a v1-${VERSION} -m "Version ${{VERSION}}"
+        git push --force origin v1-${VERSION}
 
     - name: Commit updated package.json on release
       if: success()
@@ -270,8 +272,8 @@ jobs:
         git commit -m "Update version to $VERSION"
         git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
   
-    - name: Create Git tag
-      if: success()
-      run: |
-        git tag -a v1-${VERSION} -m "Version ${{VERSION}}"
-        git push --force origin v1-${VERSION}
+    # - name: Create Git tag
+    #   if: success()
+    #   run: |
+    #     git tag -a v1-${VERSION} -m "Version ${{VERSION}}" # vois pas la var VERSION ici, je sais pas prq LOL
+    #     git push --force origin v1-${VERSION}
