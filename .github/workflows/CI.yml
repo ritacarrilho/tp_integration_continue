@@ -280,13 +280,9 @@ jobs:
     
     - name: Send Discord notification on failure
       if: failure()
-      uses: 8398a7/action-discord@v2
-      with:
-        webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        color: "#FF0000"
-        title: "Pipeline Failure"
-        description: |
-            The CI pipeline has failed.
-            Repository: ${{ github.repository }}
-            Commit SHA: ${{ github.sha }}
-            Commit Message: ${{ github.event.head_commit.message }}
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        curl -X POST -H "Content-Type: application/json" -d '{
+          "content": "<@&ROLE_ID> Pipeline Failure\n\nRepository: ${{ github.repository }}\nCommit SHA: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\n"
+        }' $DISCORD_WEBHOOK_URL
