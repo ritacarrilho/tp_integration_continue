@@ -277,3 +277,16 @@ jobs:
     #   run: |
     #     git tag -a v1-${VERSION} -m "Version ${VERSION}" # vois pas la var VERSION ici, je sais pas prq LOL
     #     git push --force origin v1-${VERSION}
+    
+    - name: Send Discord notification on failure
+      if: failure()
+      uses: 8398a7/action-discord@v2
+      with:
+        webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        color: "#FF0000"
+        title: "Pipeline Failure"
+        description: |
+            The CI pipeline has failed.
+            Repository: ${{ github.repository }}
+            Commit SHA: ${{ github.sha }}
+            Commit Message: ${{ github.event.head_commit.message }}
