@@ -251,5 +251,4 @@ jobs:
         run: |
           git add package.json
           git commit -m "Update version to $VERSION"
-          git push origin release
-  
+          git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
