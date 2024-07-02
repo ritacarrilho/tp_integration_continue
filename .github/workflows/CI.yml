@@ -162,16 +162,16 @@ jobs:
             --data '{
               "personalizations": [{
                 "to": [{
-                  "email": "'"${EMAIL}"'"
+                  "email": "'"$EMAIL"'"
                 }],
-                "subject": "SonarQube Quality Gate Status for ${REPO_NAME}"
+                "subject": "SonarQube Quality Gate Status for '"$REPO_NAME"'"
               }],
               "from": {
                 "email": "r.carrilholameira@ecoles-epsi.net"
               },
               "content": [{
                 "type": "text/plain",
-                "value": "Hello ${USERNAME},\n\nThe Quality Gate status for your recent push is ${QUALITY_GATE_STATUS}.\n\nRepository: ${REPO_NAME}\nCommit SHA: ${COMMIT_SHA}\nCommit Message: ${COMMIT_MESSAGE}\n\nBest regards,\nYour CI Pipeline"
+                "value": "Hello '"$USERNAME"',\n\nThe Quality Gate status for your recent push is '"$QUALITY_GATE_STATUS"'.\n\nRepository: '"$REPO_NAME"'\nCommit SHA: '"$COMMIT_SHA"'\nCommit Message: '"$COMMIT_MESSAGE"'\n\nBest regards,\nYour CI Pipeline"
               }]
             }'
 
