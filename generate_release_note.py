@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TRELLO_API_KEY = os.getenv('TRELLO_API_KEY')
-TRELLO_TOKEN = os.getenv('TRELLO_API_SECRET')  
+TRELLO_TOKEN = os.getenv('TRELLO_API_TOKEN')  
 BOARD_ID = os.getenv('TRELLO_BOARD_ID')
 LIST_NAME = "Releases"  # Nom de la liste où la carte sera ajoutée
 
