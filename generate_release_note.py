@@ -45,6 +45,9 @@ try:
     last_commit = repo.head.commit
     commit_name = last_commit.message.split('\n')[0]
     commit_description = "\n".join(last_commit.message.split('\n')[1:])
+    commit_author = last_commit.author.name
+    commit_date = last_commit.authored_datetime.strftime('%Y-%m-%d')
+    commit_time = last_commit.authored_datetime.strftime('%H:%M')
     
     # Extraire les 7 premiers caractères du numéro de commit
     short_commit_hash = last_commit.hexsha[:7]
@@ -58,6 +61,9 @@ try:
         'name': release_title,
         'desc': (
             f"**Commit N°** {short_commit_hash}\n\n"
+            f"**Auteur du commit:** {commit_author}\n\n"
+            f"**Date du commit:** {commit_date}\n\n"
+            f"**Heure du commit:** {commit_time}\n\n"
             f"**Description commit:** {commit_name}\n\n{commit_description}"
         ) if commit_name else ""
     }
