@@ -10,3 +10,4 @@ tox
 requests
 python-dotenv
 datetime
+GitPython

@@ -1,10 +1,12 @@
 import requests
 import os
 from dotenv import load_dotenv
-from datetime import datetime 
+from datetime import datetime
+from git import Repo  # Import GitPython's Repo
 
 load_dotenv()
 
+# Chargement des variables d'environnement
 TRELLO_API_KEY = os.getenv('TRELLO_API_KEY')
 TRELLO_TOKEN = os.getenv('TRELLO_API_TOKEN')  
 BOARD_ID = os.getenv('TRELLO_BOARD_ID')
@@ -25,7 +27,7 @@ headers = {
 try:
     # Récupérer l'ID de la liste "Releases"
     lists_response = requests.get(TRELLO_LISTS_URL, params=params, headers=headers)
-    lists_response.raise_for_status() 
+    lists_response.raise_for_status()
 
     lists = lists_response.json()
 
@@ -38,13 +40,20 @@ try:
     if not list_id:
         raise ValueError(f"La liste '{LIST_NAME}' n'existe pas sur le board Trello.")
 
-    # Créer une carte dans la liste "Releases"
+    # Récupérer le nom du dernier commit et sa description
+    repo = Repo(search_parent_directories=True)
+    last_commit = repo.head.commit
+    commit_name = last_commit.message.split('\n')[0]
+    commit_description = "\n".join(last_commit.message.split('\n')[1:])
+
+    # Créer une carte dans la liste "Releases" avec la description du commit
     release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
     create_card_params = {
         'key': TRELLO_API_KEY,
         'token': TRELLO_TOKEN,
         'idList': list_id,
         'name': release_title,
+        'desc': f"**Commit Name:** {commit_name}\n\n{commit_description}" if commit_name else ""
     }
 
     create_card_response = requests.post(TRELLO_CARDS_URL, params=create_card_params)
