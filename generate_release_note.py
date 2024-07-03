@@ -39,7 +39,7 @@ try:
         raise ValueError(f"La liste '{LIST_NAME}' n'existe pas sur le board Trello.")
 
     # Créer une carte dans la liste "Releases"
-    release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d')}"
+    release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
     create_card_params = {
         'key': TRELLO_API_KEY,
         'token': TRELLO_TOKEN,
