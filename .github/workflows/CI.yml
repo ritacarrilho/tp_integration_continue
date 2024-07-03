@@ -326,7 +326,7 @@ jobs:
   generate-release-note:
       name: Generate Release Note
       runs-on: ubuntu-latest
-      needs: [build-and-push-image]
+      needs: [Merge_test_success]
 
       steps:
         - name: Checkout code
