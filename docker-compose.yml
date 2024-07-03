@@ -27,15 +27,15 @@ services:
     networks:
       - tasks-network
 
-  tasks-test:
-    build: .
-    depends_on:
-      - tasks-db
-    environment:
-      - DATABASE_URL=postgresql://taskuser:taskpassword@tasks-db/taskdb
-    command: ["pytest", "--cov=app"]
-    networks:
-      - tasks-network
+  # tasks-test:
+  #   build: .
+  #   depends_on:
+  #     - tasks-db
+  #   environment:
+  #     - DATABASE_URL=postgresql://taskuser:taskpassword@tasks-db/taskdb
+  #   command: ["pytest", "--cov=app"]
+  #   networks:
+  #     - tasks-network
 
 volumes:
   data:

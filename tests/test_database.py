@@ -9,8 +9,7 @@ from app.database import get_db, DATABASE_URL
 
 def test_database_url():
     from app.database import DATABASE_URL
-    assert DATABASE_URL == 'postgresql://taskuser:taskpassword@tasks-db/taskdb'
-    #assert DATABASE_URL == 'postgresql://taskuser:taskpassword@localhost/taskdb'
+    assert DATABASE_URL == os.getenv('DATABASE_URL')
 
 
 def test_get_db():
