@@ -45,6 +45,9 @@ try:
     last_commit = repo.head.commit
     commit_name = last_commit.message.split('\n')[0]
     commit_description = "\n".join(last_commit.message.split('\n')[1:])
+    
+    # Extraire les 7 premiers caractères du numéro de commit
+    short_commit_hash = last_commit.hexsha[:7]
 
     # Créer une carte dans la liste "Releases" avec la description du commit
     release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
@@ -53,7 +56,10 @@ try:
         'token': TRELLO_TOKEN,
         'idList': list_id,
         'name': release_title,
-        'desc': f"**Commit Name:** {commit_name}\n\n{commit_description}" if commit_name else ""
+        'desc': (
+            f"**Commit N°** {short_commit_hash}\n\n"
+            f"**Description commit:** {commit_name}\n\n{commit_description}"
+        ) if commit_name else ""
     }
 
     create_card_response = requests.post(TRELLO_CARDS_URL, params=create_card_params)
