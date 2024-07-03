@@ -169,9 +169,12 @@ jobs:
       - name: Check the found email and username
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
+      - name: Check status output
+        run: echo "{{ $SONAR_STATUS }}, {{ env.SONAR_STATUS }} "
+
       - name: Send Notification
         env:
-          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID }}
           EMAIL: ${{ steps.get-email.outputs.email }}
           USERNAME: ${{ github.triggering_actor }}
           QUALITY_GATE_STATUS: ${{ env.QUALITY_GATE_STATUS }}
@@ -180,7 +183,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           curl --request POST \
-            --url https://api.sendgrid.com/v3/mail/send \
+            --url ${{ secrets.ENDGRID_HOST }} \ 
             --header "Authorization: Bearer $SENDGRID_API_KEY" \
             --header "Content-Type: application/json" \
             --data '{
@@ -199,6 +202,23 @@ jobs:
               }]
             }'
   
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    needs: [Merge_test_success]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_EMAIL }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
 
   Merge_test_success:
     name: Merge test success
@@ -265,55 +285,55 @@ jobs:
             "content": "<@&ROLE_ID> Pipeline Failure\n\nRepository: ${{ github.repository }}\nCommit SHA: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\n"
           }' $DISCORD_WEBHOOK_URL
         
-  update-version-and-tag:
-    name: Update version and create tag
-    runs-on: ubuntu-latest
-    needs: [sonarqube]
+  # update-version-and-tag:
+  #   name: Update version and create tag
+  #   runs-on: ubuntu-latest
+  #   needs: [sonarqube]
   
-    steps:
-    - name: Initialize Git User
-      run: |
-        git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
-        git config --global user.name "${{ secrets.GIT_USER_NAME }}"
+  #   steps:
+  #   - name: Initialize Git User
+  #     run: |
+  #       git config --global user.email "${{ secrets.GIT_USER_EMAIL }}"
+  #       git config --global user.name "${{ secrets.GIT_USER_NAME }}"
         
-    - name: Checkout code on release
-      uses: actions/checkout@v3
-      with:
-        ref: release
-        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #   - name: Checkout code on release
+  #     uses: actions/checkout@v3
+  #     with:
+  #       ref: release
+  #       token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       
-    - name: Update version in files on release and create tag
-      if: success()
-      run: |
-        VERSION=$(date +"%Y.%m.%d")
-        echo "Updating version to $VERSION"
-        sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
-        git tag -a v1-$VERSION -m "Version $VERSION"
-        git push --force origin v1-$VERSION
+  #   - name: Update version in files on release and create tag
+  #     if: success()
+  #     run: |
+  #       VERSION=$(date +"%Y.%m.%d")
+  #       echo "Updating version to $VERSION"
+  #       sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+  #       git tag -a v1-$VERSION -m "Version $VERSION"
+  #       git push --force origin v1-$VERSION
 
-    - name: Commit updated package.json on release
-      if: success()
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      run: |
-        git add package.json
-        git commit -m "Update version to $VERSION"
-        git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
+  #   - name: Commit updated package.json on release
+  #     if: success()
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+  #     run: |
+  #       git add package.json
+  #       git commit -m "Update version to $VERSION"
+  #       git push --force https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ secrets.NOM_REPOT_GIT }}.git release
   
-    - name: Create Git tag
-      if: success()
-      run: |
-        git tag -a v1-${VERSION} -m "Version ${VERSION}" # vois pas la var VERSION ici, je sais pas prq LOL
-        git push --force origin v1-${VERSION}
+    # - name: Create Git tag
+    #   if: success()
+    #   run: |
+    #     git tag -a v1-${VERSION} -m "Version ${VERSION}" # vois pas la var VERSION ici, je sais pas prq LOL
+    #     git push --force origin v1-${VERSION}
     
-    - name: Send Discord notification on failure
-      if: failure()
-      env:
-        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-      run: |
-        curl -X POST -H "Content-Type: application/json" -d '{
-          "content": "<@&ROLE_ID> Pipeline Failure\n\nRepository: ${{ github.repository }}\nCommit SHA: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\n"
-        }' $DISCORD_WEBHOOK_URL
+    # - name: Send Discord notification on failure
+    #   if: failure()
+    #   env:
+    #     DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+    #   run: |
+    #     curl -X POST -H "Content-Type: application/json" -d '{
+    #       "content": "<@&ROLE_ID> Pipeline Failure\n\nRepository: ${{ github.repository }}\nCommit SHA: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\n"
+    #     }' $DISCORD_WEBHOOK_URL
 
   generate-release-note:
       name: Generate Release Note
