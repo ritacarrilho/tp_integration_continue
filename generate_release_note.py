@@ -53,7 +53,7 @@ try:
     short_commit_hash = last_commit.hexsha[:7]
 
     # Créer une carte dans la liste "Releases" avec la description du commit
-    release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    release_title = f"Release Note - {commit_date} {commit_time} - {commit_author}"
     create_card_params = {
         'key': TRELLO_API_KEY,
         'token': TRELLO_TOKEN,
