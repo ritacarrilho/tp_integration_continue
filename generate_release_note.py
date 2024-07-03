@@ -2,28 +2,29 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Charger les variables d'environnement depuis .env
 load_dotenv()
 
-# Paramètres Trello
 TRELLO_API_KEY = os.getenv('TRELLO_API_KEY')
-TRELLO_TOKEN = os.getenv('TRELLO_API_SECRET')
+TRELLO_TOKEN = os.getenv('TRELLO_API_SECRET')  
 BOARD_ID = os.getenv('TRELLO_BOARD_ID')
 LIST_NAME = "Releases"  # Nom de la liste où la carte sera ajoutée
 
-# URL pour accéder aux listes du board Trello
 TRELLO_LISTS_URL = f"https://api.trello.com/1/boards/{BOARD_ID}/lists"
+TRELLO_CARDS_URL = "https://api.trello.com/1/cards"
 
-# Paramètres pour l'appel API
 params = {
     'key': TRELLO_API_KEY,
     'token': TRELLO_TOKEN,
 }
 
+headers = {
+    'Authorization': f'Bearer {TRELLO_TOKEN}',
+}
+
 try:
     # Récupérer l'ID de la liste "Releases"
-    lists_response = requests.get(TRELLO_LISTS_URL, params=params)
-    lists_response.raise_for_status()  # Lève une exception en cas d'erreur HTTP
+    lists_response = requests.get(TRELLO_LISTS_URL, params=params, headers=headers)
+    lists_response.raise_for_status() 
 
     lists = lists_response.json()
 
@@ -36,7 +37,19 @@ try:
     if not list_id:
         raise ValueError(f"La liste '{LIST_NAME}' n'existe pas sur le board Trello.")
 
-    # Autres opérations à effectuer ici (créer la carte de release note, etc.)
+    # Créer une carte dans la liste "Releases"
+    release_title = f"Release Note - {datetime.now().strftime('%Y-%m-%d')}"
+    create_card_params = {
+        'key': TRELLO_API_KEY,
+        'token': TRELLO_TOKEN,
+        'idList': list_id,
+        'name': release_title,
+    }
+
+    create_card_response = requests.post(TRELLO_CARDS_URL, params=create_card_params)
+    create_card_response.raise_for_status()
+
+    print(f"Carte 'Release Note' créée avec succès : {release_title}")
 
 except requests.exceptions.RequestException as e:
     print(f"Une erreur s'est produite lors de la requête HTTP : {e}")
