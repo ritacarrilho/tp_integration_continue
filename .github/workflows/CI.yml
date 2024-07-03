@@ -97,7 +97,7 @@ jobs:
         fail_ci_if_error: true
 
     - name: Publish results to Testspace
-      uses: testspace-com/github-action@v1
+      uses: testspace-com/testspace@v1
       with:
         args: "results.xml"
       env:
