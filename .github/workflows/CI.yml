@@ -73,7 +73,13 @@ jobs:
       env:
         DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@tasks-db/${{ secrets.POSTGRES_DB }}
       run: |
-        pytest tests --cov=app --cov-report=xml:coverage.xml
+        pytest tests --cov=app --cov-report=xml:coverage.xml --junitxml=results.xml
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: junit-results
+        path: results.xml
 
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
@@ -89,6 +95,13 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
+
+    - name: Publish results to Testspace
+      uses: testspace-com/github-action@v1
+      with:
+        args: "results.xml"
+      env:
+        TESTSPACE_API_TOKEN: ${{ secrets.TESTSPACE_API_TOKEN }}
 
   sonarqube:
     name: SonarQube Analysis
