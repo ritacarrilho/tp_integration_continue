@@ -96,13 +96,16 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: true
 
-    - name: Publish results to Testspace
-      uses: testspace-com/testspace@v1
+    - name: Setup Testspace
+      uses: testspace-com/setup-testspace@v1
       with:
-        args: "results.xml"
-      env:
-        TESTSPACE_API_TOKEN: ${{ secrets.TESTSPACE_API_TOKEN }}
+        domain: ${{ github.repository_owner }}
 
+    - name: Publish results to Testspace
+      run: |
+        testspace ./results.xml coverage.xml
+      if: always()
+      
   sonarqube:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
