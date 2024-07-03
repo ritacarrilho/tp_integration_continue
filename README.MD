@@ -9,7 +9,6 @@ Mise en oeuvre d'une chaine d'intégration continue.
 ## Technologie 
 - Api en [FastApi](https://fastapi.tiangolo.com/)
 
-
 ## Endpoints de l'API
 
 ![](./assets/docs/api.png)
@@ -33,7 +32,6 @@ pylint app/*.py
 
 ![](./assets/docs/lint.png)
 
-
 ## Présentation des Tests et Instructions d'Exécution
 
 - [Pytest](https://docs.pytest.org/en/8.2.x/)
@@ -55,7 +53,6 @@ pylint app/*.py
 
 ![](./assets/docs/test-3.png)
 
-
 ## Commandes utiles
 ### Lancer le projet en local
 ```java
@@ -64,7 +61,6 @@ source venv/bin/activate
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 uvicorn app.main:app --reload   
 ```
-
 ### Postgres
 ```java
 // installation de postgresql sur MacOS
@@ -76,7 +72,6 @@ CREATE USER taskuser WITH PASSWORD 'taskpassword';
 CREATE DATABASE taskdb;
 GRANT ALL PRIVILEGES ON DATABASE taskdb TO taskuser;
 ```
-
 ### Effacer fichiers DS_Store
 ```java
 find . -name .DS_Store -print0 | xargs -0 git rm -f --ignore-unmatch
