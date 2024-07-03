@@ -183,7 +183,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           curl --request POST \
-            --url ${{ secrets.ENDGRID_HOST }} \ 
+            --url ${{ secrets.SENDGRID_HOST }} \ 
             --header "Authorization: Bearer $SENDGRID_API_KEY" \
             --header "Content-Type: application/json" \
             --data '{
