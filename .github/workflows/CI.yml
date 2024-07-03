@@ -262,9 +262,9 @@ jobs:
       - name: Create Git tag on main
         if: success()
         run: |
-          VERSION=$(date +"%Y.%m.%d")-$(git rev-parse --short HEAD)
+          VERSION=$(date +"%Y.%m.%d")
           git tag -a v1-$VERSION -m "Version $VERSION"
-          git push --force origin v1-${VERSION}
+          git push --force origin v1-$VERSION
   
       - name: Merge main into release
         if: success()  # Si les tests ont réussi
