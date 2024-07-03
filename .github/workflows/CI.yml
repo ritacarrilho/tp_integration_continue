@@ -169,9 +169,6 @@ jobs:
       - name: Check the found email and username
         run: echo "The email is ${{ steps.get-email.outputs.email }} and the username is ${{ github.triggering_actor }}"
 
-      - name: Check status output
-        run: echo "{{ $SONAR_STATUS }}, {{ env.SONAR_STATUS }} "
-
       - name: Send Notification
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID }}
@@ -183,7 +180,7 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           curl --request POST \
-            --url ${{ secrets.SENDGRID_HOST }} \ 
+            --url https://api.sendgrid.com/v3/mail/send \ 
             --header "Authorization: Bearer $SENDGRID_API_KEY" \
             --header "Content-Type: application/json" \
             --data '{
