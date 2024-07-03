@@ -87,15 +87,6 @@ jobs:
         name: coverage-report
         path: coverage.xml
 
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: true
-
     - name: Setup Testspace
       uses: testspace-com/setup-testspace@v1
       with:
@@ -105,7 +96,7 @@ jobs:
       run: |
         testspace ./results.xml coverage.xml
       if: always()
-      
+
   sonarqube:
     name: SonarQube Analysis
     runs-on: ubuntu-latest
