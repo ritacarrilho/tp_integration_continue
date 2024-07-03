@@ -201,6 +201,24 @@ jobs:
   #               "value": "Hello '"$USERNAME"',\n\nThe Quality Gate status for your recent push is '"$QUALITY_GATE_STATUS"'.\n\nRepository: '"$REPO_NAME"'\nCommit SHA: '"$COMMIT_SHA"'\nCommit Message: '"$COMMIT_MESSAGE"'\n\nBest regards,\nYour CI Pipeline"
   #             }]
   #           }'
+  
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    name: Build and Push Docker Image
+    # needs: [generate-release-note]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_EMAIL }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
 
   Merge_test_success:
     name: Merge test success
@@ -331,22 +349,3 @@ jobs:
             TRELLO_BOARD_ID: ${{ secrets.TRELLO_BOARD_ID }}
             TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
           run: python generate_release_note.py
-
-
-  build-and-push-image:
-    runs-on: ubuntu-latest
-    name: Build and Push Docker Image
-    # needs: [generate-release-note]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_EMAIL }}" --password-stdin
-
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest .
-
-      - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
