@@ -319,14 +319,14 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     name: Build and Push Docker Image
-    needs: [generate-release-note]
+    # needs: [generate-release-note]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_EMAIL }}" --password-stdin
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest .
