@@ -6,7 +6,7 @@ Mise en oeuvre d'une chaine d'intégration continue.
 - BRACCIALES-COMBAS Lola
 - CARRILHO LAMEIRA Rita
 
-
+- test
 ## Technologie 
 - Api en [FastApi](https://fastapi.tiangolo.com/)
 
